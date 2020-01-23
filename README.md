@@ -10,6 +10,7 @@
 - netbox 2.7.2
 - postgres 11.4
 - redis 5.0.6
+- nginx 1.17.6
 ```
 
 # Installation:
