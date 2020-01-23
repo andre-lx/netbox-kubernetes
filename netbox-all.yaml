@@ -1,0 +1,223 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netbox
+  namespace: netbox
+  labels:
+    app: netbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netbox 
+  template:
+    metadata:
+      labels:
+        app: netbox
+    spec:
+      containers:
+      - name: netbox
+        image: netboxcommunity/netbox:v2.7.2
+        ports:
+        - containerPort: 8001
+        env:
+        - name: ALLOWED_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              key: ALLOWED_HOSTS
+              name: netbox-netbox-env
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: DB_HOST
+              name: netbox-netbox-env
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              key: DB_NAME
+              name: netbox-netbox-env
+        - name: DB_PASSWORD
+          valueFrom:
+            configMapKeyRef: 
+              key: DB_PASSWORD
+              name: netbox-netbox-env
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              key: DB_USER
+              name: netbox-netbox-env
+        - name: EMAIL_FROM
+          valueFrom:
+            configMapKeyRef:
+              key: EMAIL_FROM
+              name: netbox-netbox-env
+        - name: EMAIL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: EMAIL_PASSWORD
+              name: netbox-netbox-env
+        - name: EMAIL_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: EMAIL_PORT
+              name: netbox-netbox-env
+        - name: EMAIL_SERVER
+          valueFrom:
+            configMapKeyRef:
+              key: EMAIL_SERVER
+              name: netbox-netbox-env
+        - name: EMAIL_TIMEOUT
+          valueFrom:
+            configMapKeyRef:
+              key: EMAIL_TIMEOUT
+              name: netbox-netbox-env
+        - name: EMAIL_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              key: EMAIL_USERNAME
+              name: netbox-netbox-env
+        - name: SECRET_KEY
+          valueFrom:
+            configMapKeyRef:
+              key: SECRET_KEY
+              name: netbox-netbox-env
+        - name: SUPERUSER_API_TOKEN
+          valueFrom:
+            configMapKeyRef:
+              key: SUPERUSER_API_TOKEN
+              name: netbox-netbox-env
+        - name: SUPERUSER_EMAIL
+          valueFrom:
+            configMapKeyRef:
+              key: SUPERUSER_EMAIL
+              name: netbox-netbox-env
+        - name: SUPERUSER_NAME
+          valueFrom:
+            configMapKeyRef:
+              key: SUPERUSER_NAME
+              name: netbox-netbox-env
+        - name: SUPERUSER_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: SUPERUSER_PASSWORD
+              name: netbox-netbox-env
+        - name: LOGIN_REQUIRED
+          valueFrom:
+            configMapKeyRef:
+              key: LOGIN_REQUIRED
+              name: netbox-netbox-env
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: REDIS_HOST
+              name: netbox-netbox-env
+        - name: REDIS_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: REDIS_PASSWORD
+              name: netbox-netbox-env
+        - name: REDIS_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: REDIS_DATABASE
+              name: netbox-netbox-env
+        - name: REDIS_SSL
+          valueFrom:
+            configMapKeyRef:
+              key: REDIS_SSL
+              name: netbox-netbox-env
+        - name: REDIS_CACHE_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: REDIS_CACHE_HOST
+              name: netbox-netbox-env
+        - name: REDIS_CACHE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: REDIS_CACHE_PASSWORD
+              name: netbox-netbox-env
+        - name: REDIS_CACHE_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: REDIS_CACHE_DATABASE
+              name: netbox-netbox-env
+        - name: REDIS_CACHE_SSL
+          valueFrom:
+            configMapKeyRef:
+              key: REDIS_CACHE_SSL
+              name: netbox-netbox-env
+        volumeMounts:
+        - name: netbox-media-files
+          mountPath: /opt/netbox/netbox/media
+        - name: netbox-report-files
+          mountPath: /etc/netbox/reports
+        - name: netbox-static-files 
+          mountPath: /opt/netbox/netbox/static  
+      restartPolicy: Always
+      volumes:
+      - name: netbox-media-files
+        persistentVolumeClaim:
+          claimName: netbox-media-files-pvc-prod
+      - name: netbox-report-files
+        persistentVolumeClaim:
+          claimName: netbox-report-files-pvc-prod
+      - name: netbox-static-files
+        persistentVolumeClaim:
+          claimName: netbox-static-files-pvc-prod
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netbox
+  namespace: netbox
+  labels:
+    app: netbox
+spec:
+  ports:
+  - name: nbox
+    port: 8001
+    targetPort: 8001
+  selector:
+    app: netbox    
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: netbox-netbox-env
+  namespace: netbox
+data:
+  ALLOWED_HOSTS: "*"
+  STATIC_ROOT: "/opt/netbox/netbox/static"
+  CORS_ORIGIN_ALLOW_ALL: "True"
+  DB_NAME: netboxdata
+  DB_USER: admindb
+  DB_PASSWORD: 8g1xuYguSfNk9W7A
+  DB_HOST: postgres
+  EMAIL_SERVER: snmp.netbox.com
+  EMAIL_PORT: "587"
+  EMAIL_USERNAME: netboxadmin
+  EMAIL_PASSWORD: netboxadmin
+  EMAIL_TIMEOUT: "5"
+  EMAIL_FROM: netbox@nb.com
+  MEDIA_ROOT: /opt/netbox/netbox/media
+  NAPALM_TIMEOUT: "10"
+  MAX_PAGE_SIZE: "1000"
+  SECRET_KEY: r8OwDznj!!gdWS8ETd5jE6k9NR!#9i#P923dsRfdu1Ysxm0AiPeDCQhKE+N_rClfWNj
+  SUPERUSER_NAME: admin
+  SUPERUSER_EMAIL: superuser@superuser.com
+  SUPERUSER_PASSWORD: 9BZIRb93o773lhA7
+  SUPERUSER_API_TOKEN: 071d009ac2ff6192a777e481bba5fcb5545f9949
+  WEBHOOKS_ENABLED: "true"
+  MAINTENANCE_MODE: "false"
+  SKIP_STARTUP_SCRIPTS: "true"
+  LOGIN_REQUIRED: "true"
+  REDIS_HOST: "redis"
+  REDIS_PASSWORD: pv8eesoXWOobU8fV
+  REDIS_DATABASE: "0"
+  REDIS_SSL: "false"
+  REDIS_CACHE_HOST: "redis"
+  REDIS_CACHE_PASSWORD: 8q8L650PGL1okXB6
+  REDIS_CACHE_DATABASE: "0"
+  REDIS_CACHE_SSL: "false"
+---
+

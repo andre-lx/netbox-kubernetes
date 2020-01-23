@@ -1,0 +1,56 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: netbox-media-files-pvc-prod
+  namespace: netbox
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: csi-rbd-sc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: netbox-report-files-pvc-prod
+  namespace: netbox
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: csi-rbd-sc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: netbox-static-files-pvc-prod
+  namespace: netbox
+spec:
+  accessModes:
+    - ReadOnlyMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: csi-rbd-sc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: netbox-postgres-database-pvc
+  namespace: netbox
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: csi-rbd-sc

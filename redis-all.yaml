@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis
+  name: redis
+  namespace: netbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - image: redis:5.0.6-alpine
+          name: redis
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - redis-server --requirepass $(REDIS_PASSWORD)
+          ports:
+          - containerPort: 6379
+          env:
+          - name: REDIS_PASSWORD
+            value: pv8eesoXWOobU8fV
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redis
+  name: redis
+  namespace: netbox
+spec:
+  clusterIP: None
+  ports:
+  - name: "6379"
+    port: 6379
+    targetPort: 6379
+  selector:
+    app: redis
